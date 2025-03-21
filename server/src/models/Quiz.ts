@@ -8,6 +8,7 @@ export interface IQuiz extends Document {
   title: string;
   description: string;
   editsTime: number;
+  qtyQuestions: number;
 }
 
 const QuizSchema: Schema = new Schema(
@@ -15,6 +16,7 @@ const QuizSchema: Schema = new Schema(
     title: { type: String, required: true },
     description: { type: String, required: true },
     editsTime: { type: Number, default: 0 },
+    qtyQuestions: { type: Number, required: true },
   },
   { timestamps: true }
 );

@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { connectDB } from "./db";
-import router from "./quiz.router";
+import router from "./quiz-router";
 import { errorHandler } from "./error-handler";
 
 dotenv.config();

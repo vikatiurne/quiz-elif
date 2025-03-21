@@ -6,13 +6,38 @@ import UserAnswer from "./models/UserAnswer";
 
 interface ICreateQuiz {
   quizdata: IQuiz;
-  questionsdata: IQuestion[];
-  answersdata: IAnswer[];
+  questiondata: IQuestion[];
+}
+interface IRunQuiz {
+  time: string;
+  quizdata: IQuiz;
+  questiondata: IQuestion[];
 }
 
-interface IPaginateOptions {
-  page: number;
-  limit: number;
+interface IAnswerData {
+  _id: any;
+  isCorrect: boolean;
+  answer_text: string;
+  question_id: any;
+}
+interface IUserAnswerData {
+  isCorrect: boolean;
+  answer_text: string;
+  question_id: string;
+}
+interface IQuestionData {
+  question_text: string;
+  question_type: string;
+  answers: IAnswerData[];
+}
+interface IQuizById {
+  quizdata: { title: string; description: string; editsTime: number };
+  questiondata: IQuestionData[];
+}
+
+export interface IPaginateOptions {
+  page?: number;
+  limit?: number;
   sortBy?: string;
   order?: "asc" | "desc";
 }
@@ -36,18 +61,58 @@ class QuizServise {
       throw new Error(`Error getting quizes: ${error}`);
     }
   };
-  getQuizById = async (id: string): Promise<IQuiz | null> => {
+
+  getQuizById = async (id: string): Promise<IQuizById | null> => {
     try {
       const quiz = await Quiz.findById(id);
-      return quiz;
+      const questions = await Question.find({ quiz_id: quiz?._id });
+
+      let dataQuiz: IQuizById | null = null;
+      if (quiz && questions) {
+        let questionsArr: IQuestionData[] = [];
+
+        for (const question of questions) {
+          let questiondata: IQuestionData = {
+            question_text: question.question_text,
+            question_type: question.question_type,
+            answers: [],
+          };
+
+          const answers = await Answer.find({ question_id: question._id });
+
+          let answersArr: IAnswerData[] = [];
+
+          for (const answer of answers) {
+            let answerForQuestion: IAnswerData = {
+              _id: answer._id,
+              answer_text: answer.answer_text,
+              isCorrect: answer.isCorrect,
+              question_id: question._id,
+            };
+            answersArr.push(answerForQuestion);
+          }
+
+          questiondata.answers = answersArr;
+          questionsArr.push(questiondata);
+        }
+
+        dataQuiz = {
+          quizdata: {
+            title: quiz.title,
+            description: quiz.description,
+            editsTime: quiz.editsTime,
+          },
+          questiondata: questionsArr,
+        };
+      }
+      return dataQuiz;
     } catch (error) {
       throw new Error(`Error getting quiz: ${error}`);
     }
   };
   createQuiz = async ({
     quizdata,
-    questionsdata,
-    answersdata,
+    questiondata,
     page = 1,
     limit = 10,
     sortBy = "createdAt",
@@ -59,15 +124,30 @@ class QuizServise {
     order?: "asc" | "desc";
   }): Promise<IQuiz[]> => {
     try {
-      const quiz = new Quiz(quizdata);
+      const quiz = new Quiz({
+        title: quizdata.title,
+        description: quizdata.description,
+        qtyQuestions: questiondata.length,
+        editsTime: 0,
+      });
       await quiz.save();
-      for (const question of questionsdata) {
-        const newQuestion = new Question(question);
+      for (const item of questiondata) {
+        const newQuestion = new Question({
+          quiz_id: quiz._id,
+          question_text: item.question_text,
+          question_type: item.question_type,
+        });
         await newQuestion.save();
-      }
-      for (const answer of answersdata) {
-        const newAnswer = new Answer(answer);
-        await newAnswer.save();
+
+        const answersdata = item.answers;
+        for (const answer of answersdata) {
+          const newAnswer = new Answer({
+            question_id: newQuestion._id,
+            answer_text: answer.answer_text,
+            isCorrect: answer.isCorrect,
+          });
+          await newAnswer.save();
+        }
       }
       const quizes = this.getAllQuizes({ page, limit, sortBy, order });
       return quizes;
@@ -80,8 +160,7 @@ class QuizServise {
     id: string,
     {
       quizdata,
-      questionsdata,
-      answersdata,
+      questiondata,
       page = 1,
       limit = 10,
       sortBy = "createdAt",
@@ -99,18 +178,26 @@ class QuizServise {
         await Quiz.findByIdAndUpdate(id, quizdata, {
           new: true,
         });
-      if (questionsdata) {
-        for (const question of questionsdata) {
-          await Question.findByIdAndUpdate(question._id, questionsdata, {
+      if (questiondata) {
+        for (const question of questiondata) {
+          await Question.findByIdAndUpdate(question._id, question, {
             new: true,
           });
-        }
-      }
-      if (answersdata) {
-        for (const answer of answersdata) {
-          await Answer.findByIdAndUpdate(answer._id, answersdata, {
-            new: true,
-          });
+          const answersdata = question.answers;
+          for (const answer of answersdata) {
+            await Answer.findByIdAndUpdate(
+              answer._id,
+              {
+                question_id: question._id,
+                answer_text: answer.answer_text,
+                isCorrect: answer.isCorrect,
+                _id: answer._id,
+              },
+              {
+                new: true,
+              }
+            );
+          }
         }
       }
       return this.getAllQuizes({ page, limit, sortBy, order });
@@ -119,22 +206,23 @@ class QuizServise {
     }
   };
 
-  getCorrectAnswersByQuizId = async (
-    quiz_id: string
-  ): Promise<{ question_id: string; correct_answer: string }[]> => {
-    const questions = (await Question.find({ quiz_id }).populate(
-      "answers"
-    )) as IQuestion[];
+  getCorrectAnswersByQuizId = async (quiz_id: string) => {
+    const questions = await Question.find({ quiz_id }).populate("answers");
 
-    const correctAnswers: { question_id: string; correct_answer: string }[] =
-      questions.flatMap((question) =>
-        question.answers
-          .filter((answer: IAnswer) => answer.isCorrect)
-          .map((answer: IAnswer) => ({
-            question_id: answer.question_id.toString(),
-            correct_answer: answer.answer_text,
-          }))
+    let correctAnswers = [];
+    for (const question of questions) {
+      const answersForQuestionId = await Answer.find({
+        question_id: question._id,
+      });
+      const rightAnswerForQuestionId = answersForQuestionId.filter(
+        (answer) => answer.isCorrect
       );
+      correctAnswers.push({
+        question_id: rightAnswerForQuestionId[0].question_id,
+        right_text: rightAnswerForQuestionId[0].answer_text,
+      });
+    }
+
     return correctAnswers;
   };
 
@@ -150,7 +238,7 @@ class QuizServise {
   createResult = async (
     quiz_id: string,
     time: string,
-    { answersdata }: ICreateQuiz
+    useranswers: IRunQuiz
   ): Promise<{
     results: IResult[];
     summary: { question: string; userAnswer: string; correctAnswer: string }[];
@@ -164,34 +252,38 @@ class QuizServise {
         correctAnswer: string;
       }[] = [];
 
-      for (const answer of answersdata) {
-        const correctAnswerItem = correctAnswers.find(
-          (item) => item.question_id === answer.question_id.toString()
-        );
+      useranswers.questiondata.forEach((question) => {  
+        // Найдем правильный ответ из correctAnswersArray по question_id  
+        const correctAnswerObj = correctAnswers.find(  
+            (answer) => answer.question_id.toString() === question.answers[0]?.question_id.toString()  
+        );  
 
-        if (correctAnswerItem) {
-          summary.push({
-            question: answer.question_id.toString(),
-            userAnswer: answer.answer_text,
-            correctAnswer: correctAnswerItem.correct_answer,
-          });
-        }
-      }
+        // Получаем правильный текст ответа  
+        const correctAnswer = correctAnswerObj ? correctAnswerObj.right_text : "Нет правильного ответа";  
+
+        // Итерируемся по ответам пользователя (в данном случае берем первый ответ из answers, если он есть)  
+        const userAnswer = question.answers.find(answer => answer.isCorrect)?.answer_text || "Нет ответа пользователя";  
+
+        // Добавляем результат в сводный массив  
+        summary.push({  
+            question: question.question_text,  
+            userAnswer: userAnswer,  
+            correctAnswer: correctAnswer,  
+        });  
+    });  
+
       await Result.findOneAndUpdate({ quiz_id }, { submitingTime: time });
-      await UserAnswer.findOneAndUpdate({ quiz_id }, { answersdata });
+      await UserAnswer.findOneAndUpdate({ quiz_id }, { useranswers });
       return { results: await this.getResult(quiz_id), summary };
     } catch (error) {
       throw new Error(`Error creating result: ${error}`);
     }
   };
 
-  deleteQuiz = async (
-    id: string,
-    options: IPaginateOptions
-  ): Promise<IQuiz[]> => {
+  deleteQuiz = async (id: string): Promise<string> => {
     try {
       await Quiz.deleteOne({ _id: id });
-      return await this.getAllQuizes(options);
+      return `Quiz with id ${id} deleted successfully`;
     } catch (error) {
       throw new Error(`Error removing quiz: ${error}`);
     }

@@ -5,7 +5,7 @@ export interface IQuestion extends Document {
   quiz_id: mongoose.Types.ObjectId;
   question_text: string;
   question_type: string;
-  answers: IAnswer[]
+  answers: IAnswer[];
 }
 
 const QuestionSchema: Schema = new Schema({
@@ -13,10 +13,10 @@ const QuestionSchema: Schema = new Schema({
   question_text: { type: String, required: true },
   question_type: {
     type: String,
-    enum: ["Text", "Single choice", "Multiple choices"],
+    enum: ["text", "single", "multiple"],
     required: true,
   },
-  answers: [{ type: mongoose.Types.ObjectId, ref: 'Answer' }]
+  answers: [{ type: mongoose.Types.ObjectId, ref: "Answer" }],
 });
 
 const Question = mongoose.model<IQuestion>("Question", QuestionSchema);
