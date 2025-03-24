@@ -20,32 +20,32 @@ export const fetchGetQuizes = async (options: Options): Promise<Quiz[]> => {
       },
     });
     return quizes.data;
-  } catch (error: any) {
-    throw new Error(`Error getting quizes:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error getting quizes:${error}`);
   }
 };
 export const fetchGetQuizById = async (id: string): Promise<QuizFormValue> => {
   try {
     const quiz = await axios.get(`${API_URL}/getQuizById/${id}`);
     return quiz.data;
-  } catch (error: any) {
-    throw new Error(`Error getting quiz:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error getting quiz:${error}`);
   }
 };
 export const fetchCreateQuiz = async (data: QuizFormValue): Promise<Quiz[]> => {
   try {
     const quizes = await axios.post(`${API_URL}/createQuiz`, { data });
     return quizes.data;
-  } catch (error: any) {
-    throw new Error(`Error creating quiz:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error creating quiz:${error}`);
   }
 };
 export const fetchDeleteQuiz = async (id: string): Promise<string> => {
   try {
     const quizes = await axios.put(`${API_URL}/deleteQuiz/${id}`);
     return quizes.data;
-  } catch (error: any) {
-    throw new Error(`Error updating quiz:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error updating quiz:${error}`);
   }
 };
 export const fetchUpdateQuiz = async (
@@ -55,16 +55,16 @@ export const fetchUpdateQuiz = async (
   try {
     const quizes = await axios.put(`${API_URL}/updateQuiz/${id}`, { data });
     return quizes.data;
-  } catch (error: any) {
-    throw new Error(`Error updating quiz:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error updating quiz:${error}`);
   }
 };
 export const fetchGetResult = async (id: string): Promise<Result | void> => {
   try {
     const result = await axios.get(`${API_URL}/getResult/${id}`);
     return result.data;
-  } catch (error: any) {
-    throw new Error(`Error getting result:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error getting result:${error}`);
   }
 };
 export const fetchCreateResult = async (
@@ -78,7 +78,7 @@ export const fetchCreateResult = async (
       useranswers,
     });
     return result.data;
-  } catch (error: any) {
-    throw new Error(`Error getting result:${error.message}`);
+  } catch (error) {
+    throw new Error(`Error getting result:${error}`);
   }
 };

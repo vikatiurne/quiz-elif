@@ -5,6 +5,7 @@ import dots from "../../public/dots.svg";
 import Image from "next/image";
 import Link from "next/link";
 import { fetchDelete} from "@/app/redux/features/quizSlice";
+import { Quiz } from "@/types/types";
 
 const QuizList: React.FC = () => {
   const { quizes } = useSelector((state: RootState) => state.quiz);
@@ -18,7 +19,7 @@ const QuizList: React.FC = () => {
   );
 };
 
-const QuizCard: React.FC<{ quiz: any }> = ({ quiz }) => {
+const QuizCard: React.FC<{ quiz:Quiz }> = ({ quiz }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement | null>(null);
 

@@ -37,13 +37,13 @@ const ResultSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAddResult.pending, (state, { payload }) => {
+      .addCase(fetchAddResult.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchAddResult.fulfilled, (state, { payload }) => {
+      .addCase(fetchAddResult.fulfilled, (state) => {
         state.status = "success";
       })
-      .addCase(fetchAddResult.rejected, (state, { payload }) => {
+      .addCase(fetchAddResult.rejected, (state) => {
         state.status = "error";
       });
   },
