@@ -30,7 +30,6 @@ const initialValue: QuizFormValue = {
 const QuizForm: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isRun, setIsRun] = useState<boolean>(false);
-  const [time, setTime] = useState(Date.now());
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -40,7 +39,7 @@ const QuizForm: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchQuizById(quizId));
-  }, [dispatch]);
+  }, [dispatch,quizId]);
 
   const { quiz } = useSelector((state: RootState) => state.quiz);
 

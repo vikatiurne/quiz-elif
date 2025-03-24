@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import dots from "../../public/dots.svg";
 import Image from "next/image";
 import Link from "next/link";
-import { fetchDelete, fetchQuizes } from "@/app/redux/features/quizSlice";
+import { fetchDelete} from "@/app/redux/features/quizSlice";
 
 const QuizList: React.FC = () => {
   const { quizes } = useSelector((state: RootState) => state.quiz);

@@ -73,54 +73,54 @@ const QuizSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchQuizes.pending, (state, { payload }) => {
+      .addCase(fetchQuizes.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchQuizes.fulfilled, (state, { payload }) => {
         state.status = "success";
         state.quizes = payload;
       })
-      .addCase(fetchQuizes.rejected, (state, { payload }) => {
+      .addCase(fetchQuizes.rejected, (state) => {
         state.status = "error";
       })
-      .addCase(fetchQuizById.pending, (state, { payload }) => {
+      .addCase(fetchQuizById.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchQuizById.fulfilled, (state, { payload }) => {
         state.status = "success";
         state.quiz = payload;
       })
-      .addCase(fetchQuizById.rejected, (state, { payload }) => {
+      .addCase(fetchQuizById.rejected, (state) => {
         state.status = "error";
       })
-      .addCase(fetchCreate.pending, (state, { payload }) => {
+      .addCase(fetchCreate.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchCreate.fulfilled, (state, { payload }) => {
         state.status = "success";
         state.quizes = payload;
       })
-      .addCase(fetchCreate.rejected, (state, { payload }) => {
+      .addCase(fetchCreate.rejected, (state) => {
         state.status = "error";
       })
-      .addCase(fetchUpdate.pending, (state, { payload }) => {
+      .addCase(fetchUpdate.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchUpdate.fulfilled, (state, { payload }) => {
         state.status = "success";
         state.quizes = payload;
       })
-      .addCase(fetchUpdate.rejected, (state, { payload }) => {
+      .addCase(fetchUpdate.rejected, (state) => {
         state.status = "error";
       })
-      .addCase(fetchDelete.pending, (state, { payload }) => {
+      .addCase(fetchDelete.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchDelete.fulfilled, (state, { payload }) => {
         state.status = "success";
         state.quizes = state.quizes.filter((quiz) => quiz._id !== payload);
       })
-      .addCase(fetchDelete.rejected, (state, { payload }) => {
+      .addCase(fetchDelete.rejected, (state) => {
         state.status = "error";
       });
   },

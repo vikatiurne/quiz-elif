@@ -1,5 +1,4 @@
 import {
-  Answer,
   Options,
   Quiz,
   QuizFormValue,
