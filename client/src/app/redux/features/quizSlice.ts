@@ -20,9 +20,12 @@ const initialState: QuizState = {
     quizdata: { title: "", description: "", editsTime: 0 },
     questiondata: [
       {
+        _id: "",
         question_text: "",
         question_type: "",
-        answers: [{ isCorrect: false, answer_text: "", _id: "" }],
+        answers: [
+          { isCorrect: false, answer_text: "", _id: "", question_id: "" },
+        ],
       },
     ],
   },
