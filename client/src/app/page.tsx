@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchQuizes } from "./redux/features/quizSlice";
 import { Options } from "@/types/types";
 import Link from "next/link";
-import { RootState } from "./redux/store";
+import { AppDispatch, RootState } from "./redux/store";
 import QuizList from "@/components/QuizList";
 
 const HomePage = () => {
   const { quizes, status } = useSelector((state: RootState) => state.quiz);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     const options: Options = {

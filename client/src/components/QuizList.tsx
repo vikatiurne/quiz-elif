@@ -1,4 +1,4 @@
-import { RootState } from "@/app/redux/store";
+import { AppDispatch, RootState } from "@/app/redux/store";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import dots from "../../public/dots.svg";
@@ -23,7 +23,7 @@ const QuizCard: React.FC<{ quiz:Quiz }> = ({ quiz }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement | null>(null);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const toggleMenu = (event: React.MouseEvent) => {
     event.stopPropagation();

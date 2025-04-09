@@ -9,7 +9,7 @@ import {
   fetchQuizById,
   fetchUpdate,
 } from "@/app/redux/features/quizSlice";
-import { RootState } from "@/app/redux/store";
+import { AppDispatch, RootState } from "@/app/redux/store";
 import { useParams, useRouter } from "next/navigation";
 import { fetchAddResult } from "@/app/redux/features/resultSlice";
 
@@ -31,14 +31,14 @@ const QuizForm: React.FC = () => {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isRun, setIsRun] = useState<boolean>(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const { id } = useParams();
   const quizId = Array.isArray(id) ? id[0] : id;
 
   useEffect(() => {
-    dispatch(fetchQuizById(quizId));
+   if(quizId) dispatch(fetchQuizById(quizId));
   }, [dispatch,quizId]);
 
   const { quiz } = useSelector((state: RootState) => state.quiz);
@@ -117,10 +117,11 @@ const QuizForm: React.FC = () => {
     data.quizdata.editsTime = quiz.quizdata.editsTime;
     methods.reset();
     if (isEdit) {
-      dispatch(fetchUpdate({ id: quizId, quiz: data }));
+      if(quizId) dispatch(fetchUpdate({ id: quizId, quiz: data }));
     } else if (isRun) {
-      dispatch(
-        fetchAddResult({ id: quizId, time: timeValue, useranswers: data })
+      const timeValue="5514"
+      if (quizId) dispatch(
+         fetchAddResult({ id: quizId, time: timeValue, userAnswers: data })
       );
     } else {
       dispatch(fetchCreate(data));

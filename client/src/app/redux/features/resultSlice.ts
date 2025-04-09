@@ -21,11 +21,11 @@ const initialState: ResultState = {
 export const fetchAddResult = createAsyncThunk<
   Result,
   { id: string; time: string; userAnswers: UserAnswer[] }
->("quiz/fetchAddResult", async (info: { id; time; useranswers }) => {
+>("quiz/fetchAddResult", async (info: { id; time; userAnswers }) => {
   const responce = await fetchCreateResult(
     info.id,
     info.time,
-    info.useranswers
+    info.userAnswers
   );
   console.log(responce);
   return responce;
